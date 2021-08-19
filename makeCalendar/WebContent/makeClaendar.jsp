@@ -1,4 +1,4 @@
-<%@page import="com.leemanni.myCalendar.MyClaendar"%>
+<%@page import="com.leemanni.myCalendar.MyCalandar"%>
 <%@page import="java.util.Calendar"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
@@ -7,54 +7,13 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
-<style type="text/css">
-	table{
-		background-color: gray;
-	}
-	tr{
-		height: 70px;
-	}
-	th{
-		align-content: center;
-		width: 100px;
-	}
-	th#title{
-		color: greenyellow;
-		font-size: 25pt;
-		font-weight: bold;
-	}
-	td{
-		text-align: center;
-		font-size: 20pt;
-	}
-	td.sunday{
-		color: red;
-	}
-	td.saturday{
-		color: blue
-	}
-	a{
-		color: black;
-		text-decoration: none;
-	}
-	a:hover {
-		text-decoration: underline;
-	}
-	a:active {
-		color: tomato;
-		text-decoration: none;
-	}
-	
-
-
-</style>
+<link rel="stylesheet" href="calendar.css">
 </head>
 <body>
 <%
 	Calendar calendar = Calendar.getInstance();
 	int year = calendar.get(Calendar.YEAR);
 	int month = calendar.get(Calendar.MONTH) + 1;
-	
 	try{
 		year = Integer.parseInt(request.getParameter("year"));
 		month = Integer.parseInt(request.getParameter("month"));
@@ -93,16 +52,89 @@
 	</tr>
 	<tr>
 	<%	
-		for(int i = 1 ; i <= MyClaendar.weekDay(year, month, 1); i++){
-			out.println("<td></td>");
+		// 빈칸에 전달의 날들을 넣어주기
+		int week = MyCalandar.weekDay(year, month, 1);
+		// 출력할 전달의 시작날 계산
+		int start = 0;
+		if(month ==1 ){
+			start = 31 - week;
+		}else{
+			start = MyCalandar.lastDay(year, month-1) - week;
 		}
-		for(int i = 1 ; i <= MyClaendar.lastday(year, month)  ; i++){
-		out.println("<td>" + i + "</td>");
-			if(MyClaendar.weekDay(year, month, i) == 6 && i != 31){
-			out.println("</tr><tr>");
+		//전달 날짜들 출력
+		for(int i = 0 ; i < week ; i++){
+			if(i == 0){
+				out.println("<td class='beforeSun'>"+(month == 1? 12 : month-1)+"/"+ ++start+"</td>");
+			}else{
+				out.println("<td class='before'>"+(month == 1? 12 : month-1)+"/"+ ++start+"</td>");
+			}
+		}
+		// 그달의 날짜 출력
+		for(int i = 1 ; i <= MyCalandar.lastDay(year, month)  ; i++){
+			switch(MyCalandar.weekDay(year, month, i)){
+				case 0 : // 일요일
+					out.println("<td class ='nowSun'>" + i + "</td>");
+					break;	
+				case 6 : // 토요일
+					out.println("<td class ='nowSat'>" + i + "</td>");
+					break;	
+				default:
+					out.println("<td class ='now'>" + i + "</td>");
+					break;	
+			}
+			if(MyCalandar.weekDay(year, month, i) == 6 && i != MyCalandar.lastDay(year, month)){
+				out.println("</tr><tr>");
+			}
+		}
+		// 빈칸에 다음달 날짜를 출력
+		// 다음달 1일의 날짜 계산
+		if(month == 12){
+			week = MyCalandar.weekDay(year+1, 1, 1);
+		}else{
+			week = MyCalandar.weekDay(year, month+1, 1);
+		}
+		if(week != 0){// 다음달의 처음 시작하는 날이 일요일만 아니면 다 출력
+			start = 0;
+			for(int i = week ; i < 7 ; i ++){
+				if(i == 6){ // 토요일
+					out.println("<td class ='nextSat'>" +(month == 12 ? 1 : month+1)+ "/"+ ++start+ "</td>");
+				}else{
+					out.println("<td class ='next'>" +(month == 12 ? 1 : month+1)+ "/"+ ++start+"</td>");
+				}
 			}
 		}
 	%>
+	</tr>
+	<tr>
+		<td colspan="7" class="selectDate">
+			<div>
+				<form action="?" method="post">
+					<select class ="select" name="year">
+					<%
+						for(int i = 1900; i < 3001 ; i++){
+							if(year == i){
+								out.println("<option selected='selected'>" +i +"</selected>");
+							}else{
+								out.println("<option>" +i +"</selected>");
+							}
+						}
+					%>
+					</select> 년 &nbsp;
+					<select class ="select" name="month">
+					<%
+						for(int i = 1; i < 13 ; i++){
+							if(month == i){
+								out.println("<option selected='selected'>" +i +"</selected>");
+							}else{
+								out.println("<option>" +i +"</selected>");
+							}
+						}
+					%>
+					</select> 월&nbsp;
+					<input type="submit" value="달력보러가기"">
+				</form>
+			</div>
+		</td>
 	</tr>
 </table>
 </body>
