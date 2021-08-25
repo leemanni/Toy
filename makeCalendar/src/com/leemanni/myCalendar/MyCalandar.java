@@ -8,6 +8,7 @@ public class MyCalandar {
 	}
 //	년 월을 넘겨받아 그 달의 마지막 날짜를 리턴하는 메소드,
 	public static int lastDay(int year , int month) {
+		
 		int [] days = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 			days[1] = isLeapYear(year)? 29 :28;
 			return days[month-1];
