@@ -1,3 +1,6 @@
+<%@page import="com.leemanni.myCalendar.SolorToLunar"%>
+<%@page import="com.leemanni.myCalendar.LunarDate"%>
+<%@page import="java.util.ArrayList"%>
 <%@page import="com.leemanni.myCalendar.MyCalandar"%>
 <%@page import="java.util.Calendar"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
@@ -27,9 +30,10 @@
 	}catch(NumberFormatException e){
 		
 	}
+	ArrayList<LunarDate> lunarDate = SolorToLunar.solaToLunar(year, month);
 %>
 
-<table width="700px" align = "center" border="4" cellpadding ="2" cellspacing="0" s>
+<table width="700" align = "center" border="4" cellpadding ="2" cellspacing="0" s>
 	<tr>
 		<th>
 			<a href="?year=<%=year%>&month=<%=month-1%>">이전달</a>
@@ -64,23 +68,27 @@
 		//전달 날짜들 출력
 		for(int i = 0 ; i < week ; i++){
 			if(i == 0){
-				out.println("<td class='beforeSun'>"+(month == 1? 12 : month-1)+"/"+ ++start+"</td>");
+				out.println("<td class='beforeSun'><span>"+(month == 1? 12 : month-1)+"/"+ ++start+"</span></td>");
 			}else{
-				out.println("<td class='before'>"+(month == 1? 12 : month-1)+"/"+ ++start+"</td>");
+				out.println("<td class='before'><span>"+(month == 1? 12 : month-1)+"/"+ ++start+"</span></td>");
 			}
 		}
 		// 그달의 날짜 출력
 		for(int i = 1 ; i <= MyCalandar.lastDay(year, month)  ; i++){
-			switch(MyCalandar.weekDay(year, month, i)){
-				case 0 : // 일요일
-					out.println("<td class ='nowSun'>" + i + "</td>");
-					break;	
-				case 6 : // 토요일
-					out.println("<td class ='nowSat'>" + i + "</td>");
-					break;	
-				default:
-					out.println("<td class ='now'>" + i + "</td>");
-					break;	
+			if(lunarDate.get(i-1).getLunar().length()==0){
+				switch(MyCalandar.weekDay(year, month, i)){
+					case 0 : // 일요일
+						out.println("<td class ='nowSun'><span>" + String.format("%02d", i) + "</span></td>");
+						break;	
+					case 6 : // 토요일
+						out.println("<td class ='nowSat'><span>" + String.format("%02d", i) + "</span></td>");
+						break;	
+					default:
+						out.println("<td class ='now'><span>" + String.format("%02d", i) + "</span></td>");
+						break;	
+				}
+			}else{
+				out.println("<td class='holiday'>" + i + lunarDate.get(i-1).getLunar()+"</td>");
 			}
 			if(MyCalandar.weekDay(year, month, i) == 6 && i != MyCalandar.lastDay(year, month)){
 				out.println("</tr><tr>");
